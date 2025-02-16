@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/noch-g/chirpy/internal/database/auth"
+	"github.com/noch-g/chirpy/internal/auth"
 )
 
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
