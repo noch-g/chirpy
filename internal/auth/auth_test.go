@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"net/http"
 	"testing"
 	"time"
 
@@ -63,7 +64,7 @@ func TestValidateJWT(t *testing.T) {
 func TestMakeJWT(t *testing.T) {
 	userID := uuid.New()
 	tokenSecret := "test-secret"
-	expiresIn := time.Millisecond * 300
+	expiresIn := time.Millisecond * 500
 
 	tokenString, err := MakeJWT(userID, tokenSecret, expiresIn)
 	if err != nil {
@@ -80,5 +81,30 @@ func TestMakeJWT(t *testing.T) {
 	_, err = ValidateJWT(tokenString, tokenSecret)
 	if err == nil {
 		t.Fatalf("Expected error for expired token, got nil")
+	}
+}
+
+func TestGetBearerToken(t *testing.T) {
+	headers := http.Header{}
+	_, err := GetBearerToken(headers)
+	if err == nil {
+		t.Fatalf("Expected error for empty authorization header, got nil")
+	}
+
+	headers.Set("Authorization", "Bearer token")
+
+	token, err := GetBearerToken(headers)
+	if err != nil {
+		t.Fatalf("Failed to get bearer token: %v", err)
+	}
+	if token != "token" {
+		t.Fatalf("Expected token 'token', got '%s'", token)
+	}
+
+	headers = http.Header{}
+	headers.Set("Authorization", "Bearerdsa")
+	_, err = GetBearerToken(headers)
+	if err == nil {
+		t.Fatalf("Expected error for malformed authorization header, got nil")
 	}
 }
